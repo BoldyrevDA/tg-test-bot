@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 import axios from "axios";
 
 const { TOKEN, SERVER_URL } = process.env;
-console.log("=>(index.js:7) process.env", process.env);
 
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const URI = `/webhook/${TOKEN}`; // TODO use X-Telegram-Bot-Api-Secret-Token
@@ -24,20 +23,28 @@ app.post(URI, async (req, res) => {
 
     const chatId = message.chat.id
     const text = message.text
-    const fileId = message.photo[2].file_id;
+    const fileId = message?.photo?.[2]?.file_id;
     console.log("fileId", fileId);
-    const file = await axios.get(`${TELEGRAM_API}/getFile?file_id=${fileId}`);
-    console.log("file.file_path", `${TELEGRAM_API}/${file.file_path}`);
-    
-    await axios.post(`${TELEGRAM_API}/sendMessage`, {
-        chat_id: chatId,
-        text: text
-    })
+    if (fileId) {
+        try {
+            const file = await axios.post(`${TELEGRAM_API}/getFile`, { file_id: fileId });
+        } catch (e) {
+            console.log(e);
+        }
+        console.log("file.file_path", `${TELEGRAM_API}${file.file_path}`);
+    }
+
+    if (text) {
+        await axios.post(`${TELEGRAM_API}/sendMessage`, {
+            chat_id: chatId,
+            text: text
+        })
+    }
 
     return res.send()
 })
 
 app.listen(process.env.PORT || 5000, async () => {
     console.log('🚀 app running on port', process.env.PORT || 5000);
-    await init();
+    // await init();
 })
