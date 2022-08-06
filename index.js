@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import bodyParser from "body-parser";
-import fetch from "node-fetch";
+import axios from "axios";
 
 const { TOKEN, SERVER_URL } = process.env;
 console.log("=>(index.js:7) process.env", process.env);
@@ -14,28 +14,27 @@ const app = express()
 app.use(bodyParser.json())
 
 const init = async () => {
-    const res = await fetch(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`)
+    const res = await axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`)
     console.log(res.data);
 }
 
 app.post(URI, async (req, res) => {
     console.log(req.body)
+    const { message } = req.body;
 
-    const chatId = req.body.message.chat.id
-    const text = req.body.message.text
+    const chatId = message.chat.id
+    const text = message.text
+    const fileId = message.photo[2].file_id;
 
-    const body = JSON.stringify({
+    const file = await axios.post(`${TELEGRAM_API}/getFile`, { file_id: fileId });
+    console.log("file.file_path", file.file_path);
+
+
+
+    await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
         text: text
-    });
-
-    await fetch(`${TELEGRAM_API}/sendMessage`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-        },
-        body,
-    });
+    })
 
     return res.send()
 })
