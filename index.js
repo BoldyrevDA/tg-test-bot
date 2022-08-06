@@ -3,10 +3,12 @@ import express from 'express'
 import bodyParser from "body-parser";
 import fetch from "node-fetch";
 
-const { TOKEN, SERVER_URL } = process.env
-const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`
+const { TOKEN, SERVER_URL } = process.env;
+console.log("=>(index.js:7) process.env", process.env);
+
+const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const URI = `/webhook/${TOKEN}`; // TODO use X-Telegram-Bot-Api-Secret-Token
-const WEBHOOK_URL = SERVER_URL + URI
+const WEBHOOK_URL = SERVER_URL + URI;
 
 const app = express()
 app.use(bodyParser.json())
