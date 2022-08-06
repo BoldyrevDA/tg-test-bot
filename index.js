@@ -28,10 +28,10 @@ app.post(URI, async (req, res) => {
     if (fileId) {
         try {
             const file = await axios.post(`${TELEGRAM_API}/getFile`, { file_id: fileId });
+            console.log("file.file_path", `${TELEGRAM_API}${file?.file_path}`);
         } catch (e) {
             console.log(e);
         }
-        console.log("file.file_path", `${TELEGRAM_API}${file.file_path}`);
     }
 
     if (text) {
@@ -46,5 +46,5 @@ app.post(URI, async (req, res) => {
 
 app.listen(process.env.PORT || 5000, async () => {
     console.log('🚀 app running on port', process.env.PORT || 5000);
-    // await init();
+    await init();
 })
