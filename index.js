@@ -25,12 +25,10 @@ app.post(URI, async (req, res) => {
     const chatId = message.chat.id
     const text = message.text
     const fileId = message.photo[2].file_id;
-
-    const file = await axios.post(`${TELEGRAM_API}/getFile`, { file_id: fileId });
-    console.log("file.file_path", file.file_path);
-
-
-
+    console.log("fileId", fileId);
+    const file = await axios.get(`${TELEGRAM_API}/getFile?file_id=${fileId}`);
+    console.log("file.file_path", `${TELEGRAM_API}/${file.file_path}`);
+    
     await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
         text: text
