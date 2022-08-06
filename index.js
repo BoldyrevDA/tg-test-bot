@@ -27,8 +27,9 @@ app.post(URI, async (req, res) => {
     console.log("fileId", fileId);
     if (fileId) {
         try {
-            const file = await axios.post(`${TELEGRAM_API}/getFile`, { file_id: fileId });
-            console.log("file.file_path", `${TELEGRAM_API}${file?.file_path}`);
+            const response = await axios.post(`${TELEGRAM_API}/getFile`, { file_id: fileId });
+            const file = response?.result;
+            console.log("file.file_path", `${TELEGRAM_API}/${file?.file_path}`);
         } catch (e) {
             console.log(e);
         }
