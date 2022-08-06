@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import bodyParser from "body-parser";
+import fetch from "node-fetch";
 
 const { TOKEN, SERVER_URL } = process.env
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`
