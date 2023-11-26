@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import axios from "axios";
 import { ocrSpace } from 'ocr-space-api-wrapper';
 
+console.log("=>(index.js:8) process.env", process.env);
 const { TOKEN, SERVER_URL, DEFAULT_IMAGE_ID } = process.env;
 
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
