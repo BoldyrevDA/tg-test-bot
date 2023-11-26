@@ -30,3 +30,4 @@ jobs:
           TOKEN: ${{ secrets.TOKEN }}
           SERVER_URL: ${{ vars.SERVER_URL }}
           DEFAULT_IMAGE_ID: ${{ env.DEFAULT_IMAGE_ID }}
+          AAAAA_IMAGE_ID: ${{ env.DEFAULT_IMAGE_ID }}
