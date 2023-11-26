@@ -27,3 +27,6 @@ jobs:
 
         env:
           NODE_ENV: production
+          TOKEN: ${{ vars.TOKEN }}
+          SERVER_URL: ${{ vars.SERVER_URL }}
+          DEFAULT_IMAGE_ID: ${{ vars.DEFAULT_IMAGE_ID }}
