@@ -17,8 +17,15 @@ const app = express()
 app.use(bodyParser.json())
 
 const init = async () => {
-    const res = await axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`)
-    console.log(res.data);
+    try {
+        const res = await axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`)
+        console.log(res.data);
+    } catch (e) {
+        console.log('TOKKK', TOKEN.slice(-3));
+        console.error('initiating bot webhook error')
+        console.error(e);
+    }
+
 }
 
 async function noPhotoResponse(chatId) {
