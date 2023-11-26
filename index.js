@@ -21,9 +21,9 @@ const init = async () => {
         const res = await axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`)
         console.log(res.data);
     } catch (e) {
-        console.log('TOKKK', TOKEN.slice(-3));
         console.error('initiating bot webhook error')
         console.error(e);
+        process.exit(1);
     }
 
 }
@@ -78,6 +78,12 @@ app.post(URI, async (req, res) => {
 
     return res.send()
 })
+
+// fallback
+app.get('/', (req, res) => {
+    res.send('ok')
+});
+
 
 app.listen(process.env.PORT || 5000, async () => {
     console.log('🚀 app running on port', process.env.PORT || 5000);
