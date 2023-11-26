@@ -4,28 +4,72 @@ import bodyParser from "body-parser";
 import axios from "axios";
 import { ocrSpace } from 'ocr-space-api-wrapper';
 
-console.log("=>(index.js:8) process.env", process.env);
-const { TOKEN, SERVER_URL, DEFAULT_IMAGE_ID } = process.env;
+const { TOKEN, WEBHOOK_HOST, DEFAULT_IMAGE_ID } = process.env;
 
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${TOKEN}`;
 
 const URI = `/webhook/${TOKEN}`; // TODO use X-Telegram-Bot-Api-Secret-Token
-const WEBHOOK_URL = SERVER_URL + URI;
+let updatesOffset = 0;
 
 const app = express()
 app.use(bodyParser.json())
 
-const init = async () => {
+async function polling() {
+    const INTERVAL = 1000;
+    const TIMEOUT = 100;
+
     try {
-        const res = await axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`)
+        let response = await axios.post(
+            `${TELEGRAM_API}/getUpdates`,
+            {
+                'allowed_updates': ['message'],
+                timeout: TIMEOUT,
+                offset: updatesOffset,
+            },
+        )
+        const updates =  response.data?.result || [];
+        for (let update of updates) {
+            handleMessage(update.message)
+            updatesOffset = update.update_id + 1;
+        }
+    } catch (e) {
+        console.error('polling error')
+        console.error(e);
+    } finally {
+        // await new Promise(resolve => setTimeout(resolve, INTERVAL));
+        // await polling();
+        setTimeout(polling, INTERVAL);
+    }
+}
+
+async function setWebhook() {
+    const WEBHOOK_URL = WEBHOOK_HOST + URI;
+    try {
+        const res = await axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`);
         console.log(res.data);
     } catch (e) {
-        console.error('initiating bot webhook error')
+        console.error('setWebhook error')
         console.error(e);
-        process.exit(1);
     }
+}
 
+async function deleteWebhook() {
+    try {
+        const res = await axios.post(`${TELEGRAM_API}/deleteWebhook`);
+        console.log(res.data);
+    } catch (e) {
+        console.error('deleteWebhook error')
+    }
+}
+
+const init = async () => {
+    if (WEBHOOK_HOST) {
+        await setWebhook();
+    } else {
+        await deleteWebhook();
+        polling();
+    }
 }
 
 async function noPhotoResponse(chatId) {
@@ -42,8 +86,7 @@ async function noPhotoResponse(chatId) {
     }
 }
 
-app.post(URI, async (req, res) => {
-    const { message } = req.body;
+async function handleMessage(message) {
     const chatId = message.chat.id
     const photos = message?.photo;
     const fileId = photos?.[photos.length - 1]?.file_id;
@@ -51,7 +94,10 @@ app.post(URI, async (req, res) => {
     console.log("fileId", fileId);
     if (fileId) {
         try {
-            const response = await axios.post(`${TELEGRAM_API}/getFile`, { file_id: fileId });
+            const response = await axios.post(
+                `${TELEGRAM_API}/getFile`,
+                { file_id: fileId }
+            );
             const file = response.data?.result;
             const filePath = file?.file_path;
             const fileUrl = `${TELEGRAM_FILE_API}/${filePath}`;
@@ -75,8 +121,12 @@ app.post(URI, async (req, res) => {
     } else {
         await noPhotoResponse(chatId)
     }
+}
 
-    return res.send()
+app.post(URI, async (req, res) => {
+    const { message } = req.body;
+    await handleMessage(message);
+    return res.send();
 })
 
 // fallback
