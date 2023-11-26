@@ -1,5 +1,5 @@
 name: Deploy to Server
-run-name: ${{ github.actor }} is learning GitHub Actions
+run-name: Deploy ${{ github.repository }} to server
 on:
   push:
     branches:
@@ -7,9 +7,9 @@ on:
 
 jobs:
   deploy:
+#    runs-on: self-hosted
     runs-on: windows-latest
     environment: production
-#    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -29,5 +29,4 @@ jobs:
           NODE_ENV: production
           TOKEN: ${{ secrets.TOKEN }}
           SERVER_URL: ${{ vars.SERVER_URL }}
-          DEFAULT_IMAGE_ID: ${{ env.DEFAULT_IMAGE_ID }}
-          AAAAA_IMAGE_ID: ${{ env.DEFAULT_IMAGE_ID }}
+          DEFAULT_IMAGE_ID: ${{ vars.DEFAULT_IMAGE_ID }}
