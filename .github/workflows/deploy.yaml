@@ -7,8 +7,9 @@ on:
 
 jobs:
   deploy:
-#    runs-on: windows-latest
-    runs-on: self-hosted
+    runs-on: windows-latest
+    environment: production
+#    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -24,9 +25,8 @@ jobs:
 
       - name: Start server
         run: npm run start
-
         env:
           NODE_ENV: production
-          TOKEN: ${{ vars.TOKEN }}
+          TOKEN: ${{ secrets.TOKEN }}
           SERVER_URL: ${{ vars.SERVER_URL }}
-          DEFAULT_IMAGE_ID: ${{ vars.DEFAULT_IMAGE_ID }}
+          DEFAULT_IMAGE_ID: ${{ env.DEFAULT_IMAGE_ID }}
