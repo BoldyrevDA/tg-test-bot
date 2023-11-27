@@ -1,3 +1,6 @@
+name: Autorestart
+run-name: Restart deploy on failure
+
 on:
   workflow_run:
     workflows: [Deploy to Server]
@@ -10,6 +13,7 @@ jobs:
     steps:
       - run: echo 'The triggering workflow passed'
   on-failure:
+    environment: production
     runs-on: self-hosted
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
@@ -17,10 +21,9 @@ jobs:
         run: echo 'The triggering workflow failed'
 
       - name: Trigger workflow on failure
-        run: |
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.YOUR_PAT_SECRET }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches \
-            -d '{"ref":"main"}'
-
+        uses: peter-evans/repository-dispatch@v2
+        with:
+#         don't forget to generate Personal Access Token
+          token: ${{ secrets.PAT_SECRET }}
+          repository: ${{ github.repository }}
+          event-type: Deploy to Server
