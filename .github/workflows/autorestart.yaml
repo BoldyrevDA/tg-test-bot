@@ -26,4 +26,4 @@ jobs:
 #         don't forget to generate Personal Access Token
           token: ${{ secrets.PAT_SECRET }}
           repository: ${{ github.repository }}
-          event-type: Deploy to Server
+          event-type: restart-event

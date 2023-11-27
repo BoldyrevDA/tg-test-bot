@@ -1,6 +1,9 @@
 name: Deploy to Server
 run-name: Deploy ${{ github.repository }} to server
 on:
+  repository_dispatch:
+    types:
+      - restart-event
   push:
     branches:
       - main
