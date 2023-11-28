@@ -6,6 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "start:win-service": "node windows-service-start.js",
+    "stop:win-service": "node windows-service-stop.js",
+    "stop2:win-service": "sc.exe STOP telegramocrbot.exe && sc.exe DELETE telegramocrbot.exe",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,6 +19,7 @@
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "node-windows": "1.0.0-beta.8",
     "ocr-space-api-wrapper": "^2.1.1"
   },
   "devDependencies": {

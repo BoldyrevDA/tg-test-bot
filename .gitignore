@@ -128,3 +128,6 @@ dist
 
 # webstorm settings
 .idea
+
+DELETE
+daemon
