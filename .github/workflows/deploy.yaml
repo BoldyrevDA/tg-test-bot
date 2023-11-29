@@ -12,25 +12,16 @@ jobs:
   clear-previous-deploy:
     runs-on: self-hosted
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Start server
-        run: 'npm run stop:win-service'
+      - name: Stop service
+        run: |
+          sc.exe STOP telegramocrbot.exe
+          sc.exe DELETE telegramocrbot.exe
 
   deploy:
     runs-on: self-hosted
 #    runs-on: windows-latest
     environment: production
-    needs: [clearPreviousDeploy]
+    needs: [clear-previous-deploy]
 
     steps:
       - name: Checkout repository
