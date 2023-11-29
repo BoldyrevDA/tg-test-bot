@@ -6,9 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const scriptPath = path.join(__dirname, 'index.js');
-console.log("=>(windows-service.js:11) scriptPath: ", scriptPath);
-
 const { TOKEN, WEBHOOK_HOST, DEFAULT_IMAGE_ID } = process.env;
+
+console.log("=>(windows-service.js:11) scriptPath: ", scriptPath);
+console.log("=>(windows-service.js:13) token: ", TOKEN?.slice(-4));
 
 export const winService = new Service({
     name: 'Telegram OCR Bot',

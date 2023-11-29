@@ -27,9 +27,9 @@ jobs:
         run: npm install
 
       - name: Start server
-        run: 'npm run start'
+        run: 'npm run start:win-service'
         env:
           NODE_ENV: production
           TOKEN: ${{ secrets.TOKEN }}
-          SERVER_URL: ${{ vars.SERVER_URL }}
+          WEBHOOK_HOST: ${{ vars.WEBHOOK_HOST }}
           DEFAULT_IMAGE_ID: ${{ vars.DEFAULT_IMAGE_ID }}
