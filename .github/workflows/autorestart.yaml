@@ -20,16 +20,16 @@ jobs:
       - name: Echo failed
         run: echo 'The triggering workflow failed'
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Stop and remove win-service
-        run: 'npm run stop:win-service'
+#      - name: Set up Node.js
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: '20'
+#
+#      - name: Install dependencies
+#        run: npm install
+#
+#      - name: Stop and remove win-service
+#        run: 'npm run stop:win-service'
 
       - name: Trigger workflow on failure
         uses: peter-evans/repository-dispatch@v2
