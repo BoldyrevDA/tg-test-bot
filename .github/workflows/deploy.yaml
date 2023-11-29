@@ -9,19 +9,21 @@ on:
       - main
 
 jobs:
-#  clear-previous-deploy:
-#    runs-on: self-hosted
-#    steps:
-#      - name: Stop service
-#        run: |
-#          sc.exe STOP telegramocrbot.exe
-#          sc.exe DELETE telegramocrbot.exe
+  clear-previous-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Stop service
+        run: |
+          sc.exe STOP telegramocrbot.exe
+          sc.exe DELETE telegramocrbot.exe
+
+        continue-on-error: true
 
   deploy:
-#    runs-on: self-hosted
-    runs-on: windows-latest
+    runs-on: self-hosted
+#    runs-on: windows-latest
     environment: production
-#    needs: [clear-previous-deploy]
+    needs: [clear-previous-deploy]
 
     steps:
       - name: Checkout repository
