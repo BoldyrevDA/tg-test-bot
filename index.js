@@ -6,8 +6,6 @@ import { ocrSpace } from 'ocr-space-api-wrapper';
 
 const { TOKEN, WEBHOOK_HOST, DEFAULT_IMAGE_ID } = process.env;
 
-console.log("=>(windows-service.js:13) token: ", TOKEN?.slice(-4));
-
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${TOKEN}`;
 
