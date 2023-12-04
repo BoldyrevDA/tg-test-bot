@@ -31,14 +31,15 @@ export function _analyzeSendMessage({
     username,
     first_name,
     language_code,
-}) {
+} = {}) {
     sendAnalytics({
-        user_id: id,
+        user_id: username || id,
         event_type: "Send message",
         language: language_code,
         user_properties: {
             username,
             first_name,
+            id,
         },
     });
 }

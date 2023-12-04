@@ -44,7 +44,7 @@ async function noPhotoResponse(chatId) {
     }
 }
 
-async function handleCommands(chatId, messageText) {
+async function handleCommands(chatId, messageText, username) {
     const languages = [
         'eng',
         'rus',
@@ -54,7 +54,7 @@ async function handleCommands(chatId, messageText) {
     const command = messageText[0] === '/' ? messageText.slice(1) : messageText;
 
     if (languages.includes(command)) {
-        _analyzeChangeLanguage(chatId, command);
+        _analyzeChangeLanguage(username || chatId, command);
         chatsLanguages[chatId] = command;
 
         const msg = `recognition language: *${command}*`;
@@ -112,7 +112,7 @@ async function handleMessage(message) {
             })
         }
     } else {
-        const isCommand = await handleCommands(chatId, messageText);
+        const isCommand = await handleCommands(chatId, messageText, from?.username);
         if (!isCommand) {
             await noPhotoResponse(chatId)
         }
