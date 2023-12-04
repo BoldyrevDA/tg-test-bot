@@ -1,4 +1,4 @@
-name: Stop Service Workflow
+name: Stop Service
 
 on:
   workflow_dispatch:

@@ -2,93 +2,78 @@ import 'dotenv/config'
 import express from 'express'
 import bodyParser from "body-parser";
 import axios from "axios";
-import { ocrSpace } from 'ocr-space-api-wrapper';
+import {ocrSpace} from 'ocr-space-api-wrapper';
+import {LANGUAGE_DEFAULT_IMAGE_IDS} from "./src/constants/images-ids.js";
+import {getRandomInteger} from "./src/utils/utils.js";
+import {
+    DEFAULT_IMAGE_ID,
+    DEFAULT_LANGUAGE,
+    TELEGRAM_API,
+    TELEGRAM_FILE_API,
+    URI,
+    WEBHOOK_HOST
+} from "./src/constants/configs.js";
+import {
+    deleteWebhook,
+    polling,
+    sendMessage,
+    sendPhoto,
+    setWebhook
+} from "./src/utils/telegram-methods.js";
 
-const { TOKEN, WEBHOOK_HOST, DEFAULT_IMAGE_ID } = process.env;
+const chatsLanguages = {};
 
-const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
-const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${TOKEN}`;
-
-const URI = `/webhook/${TOKEN}`; // TODO use X-Telegram-Bot-Api-Secret-Token
-let updatesOffset = 0;
-
-const app = express()
-app.use(bodyParser.json())
-
-async function polling() {
-    const INTERVAL = 1000;
-    const TIMEOUT = 100;
-
-    try {
-        let response = await axios.post(
-            `${TELEGRAM_API}/getUpdates`,
-            {
-                'allowed_updates': ['message'],
-                timeout: TIMEOUT,
-                offset: updatesOffset,
-            },
-        )
-        const updates =  response.data?.result || [];
-        for (let update of updates) {
-            handleMessage(update.message)
-            updatesOffset = update.update_id + 1;
-        }
-    } catch (e) {
-        console.error('polling error')
-        console.error(e);
-    } finally {
-        // await new Promise(resolve => setTimeout(resolve, INTERVAL));
-        // await polling();
-        setTimeout(polling, INTERVAL);
-    }
-}
-
-async function setWebhook() {
-    const WEBHOOK_URL = WEBHOOK_HOST + URI;
-    try {
-        const res = await axios.get(`${TELEGRAM_API}/setWebhook?url=${WEBHOOK_URL}`);
-        console.log(res.data);
-    } catch (e) {
-        console.error('setWebhook error')
-        console.error(e);
-    }
-}
-
-async function deleteWebhook() {
-    try {
-        const res = await axios.post(`${TELEGRAM_API}/deleteWebhook`);
-        console.log(res.data);
-    } catch (e) {
-        console.error('deleteWebhook error')
-    }
-}
+const app = express();
+app.use(bodyParser.json());
 
 const init = async () => {
     if (WEBHOOK_HOST) {
         await setWebhook();
     } else {
         await deleteWebhook();
-        polling();
+        polling(handleMessage);
     }
 }
 
 async function noPhotoResponse(chatId) {
     if (DEFAULT_IMAGE_ID) {
-        await axios.post(`${TELEGRAM_API}/sendPhoto`, {
-            chat_id: chatId,
-            photo: DEFAULT_IMAGE_ID
-        })
+        await sendPhoto(chatId, DEFAULT_IMAGE_ID);
     } else {
-        await axios.post(`${TELEGRAM_API}/sendMessage`, {
-            chat_id: chatId,
-            text: "photo required for OCR"
-        })
+        await sendMessage(chatId, "photo required for OCR");
     }
+}
+
+async function handleCommands(chatId, messageText) {
+    const languages = [
+        'eng',
+        'rus',
+        'ger',
+        'tur',
+    ];
+    const command = messageText[0] === '/' ? messageText.slice(1) : messageText;
+
+    if (languages.includes(command)) {
+        chatsLanguages[chatId] = command;
+
+        const msg = `recognition language: *${command}*`;
+        const imgs = LANGUAGE_DEFAULT_IMAGE_IDS[command];
+        const img = imgs?.[getRandomInteger(0, imgs.length - 1)];
+
+        if (img) {
+            await sendPhoto(chatId, img, msg);
+        } else {
+            await sendMessage(chatId, msg)
+        }
+        return true;
+    }
+
+    return false;
 }
 
 async function handleMessage(message) {
     const chatId = message.chat.id
     const photos = message?.photo;
+    const messageText = message.text;
     const fileId = photos?.[photos.length - 1]?.file_id;
 
     console.log("fileId", fileId);
@@ -102,7 +87,10 @@ async function handleMessage(message) {
             const filePath = file?.file_path;
             const fileUrl = `${TELEGRAM_FILE_API}/${filePath}`;
 
-            const ocrResponse = await ocrSpace(fileUrl, { filetype: filePath.slice(-3) });
+            const ocrResponse = await ocrSpace(fileUrl, {
+                filetype: filePath.slice(-3),
+                language: chatsLanguages[chatId] || DEFAULT_LANGUAGE
+            });
             const imgText = ocrResponse?.ParsedResults?.[0]?.ParsedText;
 
             await axios.post(`${TELEGRAM_API}/sendMessage`, {
@@ -119,7 +107,10 @@ async function handleMessage(message) {
             })
         }
     } else {
-        await noPhotoResponse(chatId)
+        const isCommand = await handleCommands(chatId, messageText);
+        if (!isCommand) {
+            await noPhotoResponse(chatId)
+        }
     }
 }
 
