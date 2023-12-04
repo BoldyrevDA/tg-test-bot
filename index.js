@@ -20,6 +20,7 @@ import {
     sendPhoto,
     setWebhook
 } from "./src/utils/telegram-methods.js";
+import {_analyzeChangeLanguage, _analyzeSendMessage} from "./src/utils/analytics.js";
 
 const chatsLanguages = {};
 
@@ -53,6 +54,7 @@ async function handleCommands(chatId, messageText) {
     const command = messageText[0] === '/' ? messageText.slice(1) : messageText;
 
     if (languages.includes(command)) {
+        _analyzeChangeLanguage(chatId, command);
         chatsLanguages[chatId] = command;
 
         const msg = `recognition language: *${command}*`;
@@ -73,8 +75,11 @@ async function handleCommands(chatId, messageText) {
 async function handleMessage(message) {
     const chatId = message.chat.id
     const photos = message?.photo;
+    const from = message?.from;
     const messageText = message.text;
     const fileId = photos?.[photos.length - 1]?.file_id;
+
+    _analyzeSendMessage(from);
 
     console.log("fileId", fileId);
     if (fileId) {

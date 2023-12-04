@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const scriptPath = path.join(__dirname, 'index.js');
-const { TOKEN, WEBHOOK_HOST, DEFAULT_IMAGE_ID } = process.env;
+const { TOKEN, WEBHOOK_HOST, DEFAULT_IMAGE_ID, AMPLITUDE_TOKEN } = process.env;
 
 // TODO try to use "PM2" instead of "node-windows"
 
@@ -25,5 +25,8 @@ export const winService = new Service({
     }, {
         name: "DEFAULT_IMAGE_ID",
         value: DEFAULT_IMAGE_ID,
+    }, {
+        name: "AMPLITUDE_TOKEN",
+        value: AMPLITUDE_TOKEN,
     }],
 });

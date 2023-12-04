@@ -42,5 +42,6 @@ jobs:
         env:
           NODE_ENV: production
           TOKEN: ${{ secrets.TOKEN }}
+          AMPLITUDE_TOKEN: ${{ secrets.AMPLITUDE_TOKEN }}
           WEBHOOK_HOST: ${{ vars.WEBHOOK_HOST }}
           DEFAULT_IMAGE_ID: ${{ vars.DEFAULT_IMAGE_ID }}
